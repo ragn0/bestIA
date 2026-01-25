@@ -1,7 +1,7 @@
 import random
 
 SEEDS = ["Bastoni", "Coppe", "Denari", "Spade"]
-VALUES = ["Asso", "2", "3", "4", "5", "6", "7", "Fante", "Cavallo", "Re"]
+VALUES = ["2", "3", "4", "5", "6", "7", "Fante", "Cavallo", "Re", "Asso"]
 
 class Card:
     def __init__(self, seed, value):
