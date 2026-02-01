@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
-
+import logging
 from PySide6 import QtWidgets, QtCore, QtGui
 import sys
+logger = logging.getLogger(__name__)
 
 class PlayerRow(QtWidgets.QWidget):
     # One row in the NewGameDialog for a single player.
@@ -141,7 +142,7 @@ class NewGameDialog(QtWidgets.QDialog):
 
     def on_confirm(self):
         players = self.get_players()
-
+        
         players_valid = [p for p in players if p["name"] and p["bankroll"] > 0]
         if len(players_valid) < 4:
             QtWidgets.QMessageBox.warning(self, "Invalid Players", "Please add at least 4 players with valid names and bankrolls.")
@@ -151,6 +152,7 @@ class NewGameDialog(QtWidgets.QDialog):
         if len(names) != len(set(names)):
             QtWidgets.QMessageBox.warning(self, "Duplicate Names", "Please ensure all player names are unique.")
             return 
+        logger.info(f"New game setup confirmed with players: {players}")
         self.accept() 
 
 class Menu(QtWidgets.QWidget):
@@ -227,22 +229,37 @@ class Menu(QtWidgets.QWidget):
         self.setLayout(main_layout)
     @QtCore.Slot()
     def on_exit_clicked(self):
+        logger.info("Application exited from menu.")
         QtWidgets.QApplication.quit()
+        
     
     def on_new_game_clicked(self):
+        logger.info("New game button pressed from menu.")
         dialog = NewGameDialog(self)
         if dialog.exec() == QtWidgets.QDialog.Accepted:
             players_data = dialog.get_players()
-            # TODO: Starting game logic
-            print("Starting new game with players:", players_data)
+            # Filter valid players
+            valid_players = [p for p in players_data if p["name"] and p["bankroll"] > 0]
+            if len(valid_players) < 3:
+                QtWidgets.QMessageBox.warning(self, "Invalid Players", 
+                    "Please add at least 3 players with valid names and bankrolls.")
+                return
+            
+            # Open game window
+            from game_window import GameWindow
+            self.game_window = GameWindow(valid_players)
+            self.game_window.show()
+            self.hide()  # Hide menu
         else: 
             print("New game canceled.")
 
 
 if __name__ == "__main__":
+    logging.basicConfig(filename='record.log', level=logging.INFO)
     app = QtWidgets.QApplication([])
-
+    logger.info("Application started.")
     window = Menu()
+    logger.info("Menu window created.")
     window.resize(800, 600)
     window.show()
     

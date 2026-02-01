@@ -1,0 +1,125 @@
+INFO:__main__:Application started.
+INFO:__main__:Menu window created.
+INFO:__main__:New game button pressed from menu.
+INFO:engine.smazzata:Next player to deal to: 1
+INFO:engine.smazzata:Legal actions for player 1 in DEAL_DECIDE phase: Keep/Fold
+INFO:engine.smazzata:Legal actions for player 1 in DEAL_DECIDE phase: Keep/Fold
+INFO:engine.smazzata:Player 1 action in DEAL_DECIDE: Action(kind='fold', payload={})
+INFO:engine.smazzata:Player 1 chose to FOLD their cards.
+INFO:engine.smazzata:Next player to deal to: 2
+INFO:engine.smazzata:Legal actions for player 2 in DEAL_DECIDE phase: Keep/Fold
+INFO:engine.smazzata:Legal actions for player 2 in DEAL_DECIDE phase: Keep/Fold
+INFO:engine.smazzata:Player 2 action in DEAL_DECIDE: Action(kind='keep', payload={})
+INFO:engine.smazzata:Player 2 chose to KEEP their cards.
+INFO:engine.smazzata:Next player to deal to: 3
+INFO:engine.smazzata:Legal actions for player 3 in DEAL_DECIDE phase: Keep/Fold
+INFO:engine.smazzata:Legal actions for player 3 in DEAL_DECIDE phase: Keep/Fold
+INFO:engine.smazzata:Player 3 action in DEAL_DECIDE: Action(kind='fold', payload={})
+INFO:engine.smazzata:Player 3 chose to FOLD their cards.
+INFO:engine.smazzata:Next player to deal to: 0
+INFO:engine.smazzata:Legal actions for player 0 in DEAL_DECIDE phase: Keep/Fold
+INFO:game_window:Timer timeout tick
+INFO:game_window:Timer timeout tick
+INFO:game_window:Timer timeout tick
+INFO:game_window:Timer timeout tick
+INFO:engine.smazzata:Legal actions for player 0 in DEAL_DECIDE phase: Keep/Fold
+INFO:engine.smazzata:Player 0 action in DEAL_DECIDE: Action(kind='fold', payload={})
+INFO:engine.smazzata:Player 0 chose to FOLD their cards.
+INFO:engine.smazzata:Next player to deal to: None
+INFO:engine.smazzata:All players dealt and decided. Moving to CAMBI phase.
+INFO:engine.smazzata:Legal actions for player 2 in CAMBI phase: [Action(kind='servito', payload={}), Action(kind='change_card', payload={'index': 0}), Action(kind='change_card', payload={'index': 1}), Action(kind='change_card', payload={'index': 2}), Action(kind='change_cards', payload={'indices': [0, 1]}), Action(kind='change_cards', payload={'indices': [0, 2]}), Action(kind='change_cards', payload={'indices': [1, 2]})]
+INFO:engine.smazzata:Legal actions for player 2 in CAMBI phase: [Action(kind='servito', payload={}), Action(kind='change_card', payload={'index': 0}), Action(kind='change_card', payload={'index': 1}), Action(kind='change_card', payload={'index': 2}), Action(kind='change_cards', payload={'indices': [0, 1]}), Action(kind='change_cards', payload={'indices': [0, 2]}), Action(kind='change_cards', payload={'indices': [1, 2]})]
+INFO:engine.smazzata:Player 2 action in CAMBI: Action(kind='change_cards', payload={'indices': [0, 1]})
+INFO:engine.smazzata:Player 2 changed card at index 1 from Fante di Spade.
+INFO:engine.smazzata:Player 2 changed card at index 0 from 7 di Spade.
+INFO:engine.smazzata:Player 2 received new card 6 di Coppe at index 0.
+INFO:engine.smazzata:Player 2 received new card Re di Coppe at index 1.
+INFO:engine.smazzata:All CAMBI done. Moving to BUCHI_ENTRY phase.
+INFO:engine.smazzata:Next player for BUCHI_ENTRY: 1
+INFO:engine.smazzata:Prompting player 1 for BUCHI_ENTRY decision.
+INFO:engine.smazzata:Legal actions for player 1 in BUCHI_ENTRY phase: take_buco/pass
+INFO:engine.smazzata:Legal actions for player 1 in BUCHI_ENTRY phase: take_buco/pass
+INFO:engine.smazzata:Player 1 action in BUCHI_ENTRY: Action(kind='pass', payload={})
+INFO:engine.smazzata:Next player for BUCHI_ENTRY: 3
+INFO:engine.smazzata:Prompting player 3 for BUCHI_ENTRY decision.
+INFO:engine.smazzata:Legal actions for player 3 in BUCHI_ENTRY phase: take_buco/pass
+INFO:engine.smazzata:Legal actions for player 3 in BUCHI_ENTRY phase: take_buco/pass
+INFO:engine.smazzata:Player 3 action in BUCHI_ENTRY: Action(kind='pass', payload={})
+INFO:engine.smazzata:Next player for BUCHI_ENTRY: 0
+INFO:engine.smazzata:Prompting player 0 for BUCHI_ENTRY decision.
+INFO:engine.smazzata:Legal actions for player 0 in BUCHI_ENTRY phase: take_buco/pass
+INFO:game_window:Timer timeout tick
+INFO:game_window:Timer timeout tick
+INFO:game_window:Timer timeout tick
+INFO:game_window:Timer timeout tick
+INFO:game_window:Timer timeout tick
+INFO:game_window:Timer timeout tick
+INFO:engine.smazzata:Legal actions for player 0 in BUCHI_ENTRY phase: take_buco/pass
+INFO:engine.smazzata:Player 0 action in BUCHI_ENTRY: Action(kind='take_buco', payload={})
+INFO:engine.smazzata:Player 0 took a Buco with cards: [Card('Coppe', '3'), Card('Bastoni', '5'), Card('Bastoni', 'Re'), Card('Bastoni', '7')]
+INFO:engine.smazzata:Moving to BUCHI_DISCARD phase for buco 0.
+INFO:engine.smazzata:Legal actions for buco 0 in BUCHI_DISCARD phase: discard one of 4 cards
+INFO:engine.smazzata:Legal actions for buco 0 in BUCHI_DISCARD phase: discard one of 4 cards
+INFO:engine.smazzata:Buco 0 discarded card 5 di Bastoni. Remaining cards: [Card('Coppe', '3'), Card('Bastoni', 'Re'), Card('Bastoni', '7')]
+INFO:engine.smazzata:Next actor to play: Actor(kind='buco', id=0)
+INFO:engine.smazzata:Actor Actor(kind='buco', id=0) action in PLAY: Action(kind='play_card', payload={'card': Card('Coppe', '3')})
+INFO:engine.smazzata:Actor Actor(kind='buco', id=0) played card 3 di Coppe. Current trick: [(Actor(kind='buco', id=0), Card('Coppe', '3'))]
+INFO:engine.smazzata:Current trick winner: (Actor(kind='buco', id=0), Card('Coppe', '3'))
+INFO:engine.smazzata:Next actor to play: Actor(kind='player', id=2)
+INFO:engine.smazzata:Getting legal play actions for player due with cards: [Card('Coppe', '6'), Card('Coppe', 'Re'), Card('Denari', '2')]
+INFO:engine.smazzata:Current winning card in trick: 3 di Coppe
+INFO:engine.smazzata:Beating cards from must_play: []
+INFO:engine.smazzata:Legal play actions for player due: must_play=[Card('Coppe', '6'), Card('Coppe', 'Re')]
+INFO:engine.smazzata:Getting legal play actions for player due with cards: [Card('Coppe', '6'), Card('Coppe', 'Re'), Card('Denari', '2')]
+INFO:engine.smazzata:Current winning card in trick: 3 di Coppe
+INFO:engine.smazzata:Beating cards from must_play: []
+INFO:engine.smazzata:Legal play actions for player due: must_play=[Card('Coppe', '6'), Card('Coppe', 'Re')]
+INFO:engine.smazzata:Actor Actor(kind='player', id=2) action in PLAY: Action(kind='play_card', payload={'card': Card('Coppe', '6')})
+INFO:engine.smazzata:Actor Actor(kind='player', id=2) played card 6 di Coppe. Current trick: [(Actor(kind='buco', id=0), Card('Coppe', '3')), (Actor(kind='player', id=2), Card('Coppe', '6'))]
+INFO:engine.smazzata:Current trick winner: (Actor(kind='buco', id=0), Card('Coppe', '3'))
+INFO:engine.smazzata:Trick complete. Resolving trick.
+INFO:engine.smazzata:Buco 0 composed of [<engine.smazzata.Player object at 0x7fc798c73380>] won the trick with card 3 di Coppe. Total tricks won: 1
+INFO:engine.smazzata:Starting next trick.
+INFO:engine.smazzata:Trick winner: (Actor(kind='buco', id=0), Card('Coppe', '3'))
+INFO:engine.smazzata:Next actor to play: Actor(kind='buco', id=0)
+INFO:engine.smazzata:Actor Actor(kind='buco', id=0) action in PLAY: Action(kind='play_card', payload={'card': Card('Bastoni', '7')})
+INFO:engine.smazzata:Actor Actor(kind='buco', id=0) played card 7 di Bastoni. Current trick: [(Actor(kind='buco', id=0), Card('Bastoni', '7'))]
+INFO:engine.smazzata:Current trick winner: (Actor(kind='buco', id=0), Card('Bastoni', '7'))
+INFO:engine.smazzata:Next actor to play: Actor(kind='player', id=2)
+INFO:engine.smazzata:Getting legal play actions for player due with cards: [Card('Coppe', 'Re'), Card('Denari', '2')]
+INFO:engine.smazzata:Current winning card in trick: 7 di Bastoni
+INFO:engine.smazzata:Beating cards from can_play: [Card('Denari', '2')]
+INFO:engine.smazzata:Legal play actions for player due: must_play=[Card('Denari', '2')]
+INFO:engine.smazzata:Getting legal play actions for player due with cards: [Card('Coppe', 'Re'), Card('Denari', '2')]
+INFO:engine.smazzata:Current winning card in trick: 7 di Bastoni
+INFO:engine.smazzata:Beating cards from can_play: [Card('Denari', '2')]
+INFO:engine.smazzata:Legal play actions for player due: must_play=[Card('Denari', '2')]
+INFO:engine.smazzata:Actor Actor(kind='player', id=2) action in PLAY: Action(kind='play_card', payload={'card': Card('Denari', '2')})
+INFO:engine.smazzata:Actor Actor(kind='player', id=2) played card 2 di Denari. Current trick: [(Actor(kind='buco', id=0), Card('Bastoni', '7')), (Actor(kind='player', id=2), Card('Denari', '2'))]
+INFO:engine.smazzata:Current trick winner: (Actor(kind='player', id=2), Card('Denari', '2'))
+INFO:engine.smazzata:Trick complete. Resolving trick.
+INFO:engine.smazzata:Player due won the trick with card 2 di Denari. Total tricks won: 1
+INFO:engine.smazzata:Starting next trick.
+INFO:engine.smazzata:Trick winner: (Actor(kind='player', id=2), Card('Denari', '2'))
+INFO:engine.smazzata:Next actor to play: Actor(kind='player', id=2)
+INFO:engine.smazzata:Getting legal play actions for player due with cards: [Card('Coppe', 'Re')]
+INFO:engine.smazzata:Getting legal play actions for player due with cards: [Card('Coppe', 'Re')]
+INFO:engine.smazzata:Actor Actor(kind='player', id=2) action in PLAY: Action(kind='play_card', payload={'card': Card('Coppe', 'Re')})
+INFO:engine.smazzata:Actor Actor(kind='player', id=2) played card Re di Coppe. Current trick: [(Actor(kind='player', id=2), Card('Coppe', 'Re'))]
+INFO:engine.smazzata:Current trick winner: (Actor(kind='player', id=2), Card('Coppe', 'Re'))
+INFO:engine.smazzata:Next actor to play: Actor(kind='buco', id=0)
+INFO:engine.smazzata:Current winning card in trick: Re di Coppe
+INFO:engine.smazzata:Beating cards from can_play: []
+INFO:engine.smazzata:Legal play actions for player io: must_play=[Card('Bastoni', 'Re')]
+INFO:engine.smazzata:Current winning card in trick: Re di Coppe
+INFO:engine.smazzata:Beating cards from can_play: []
+INFO:engine.smazzata:Legal play actions for player io: must_play=[Card('Bastoni', 'Re')]
+INFO:engine.smazzata:Actor Actor(kind='buco', id=0) action in PLAY: Action(kind='play_card', payload={'card': Card('Bastoni', 'Re')})
+INFO:engine.smazzata:Actor Actor(kind='buco', id=0) played card Re di Bastoni. Current trick: [(Actor(kind='player', id=2), Card('Coppe', 'Re')), (Actor(kind='buco', id=0), Card('Bastoni', 'Re'))]
+INFO:engine.smazzata:Current trick winner: (Actor(kind='player', id=2), Card('Coppe', 'Re'))
+INFO:engine.smazzata:Trick complete. Resolving trick.
+INFO:engine.smazzata:Player due won the trick with card Re di Coppe. Total tricks won: 2
+INFO:engine.smazzata:Settling the hand.
+INFO:engine.smazzata:Player due won 2 tricks, receiving payout of 200. New bankroll: 1200
+INFO:engine.smazzata:Buco player io won 1 tricks, receiving payout of 100. New bankroll: 1100
+INFO:game_window:Timer timeout tick

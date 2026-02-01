@@ -1,8 +1,11 @@
 from .deck import Deck, Card, compare_cards, RANK_STRENGTH
 from dataclasses import dataclass, field
 from typing import Optional, Literal, List, Dict, Any
+import logging
 from enum import Enum
 import random
+import time
+logger = logging.getLogger(__name__)
 
 
 # Backward compatibility constants
@@ -135,6 +138,7 @@ class Engine:
         
         if self.phase == Phase.DEAL_DECIDE:
             if actor.kind == "player":
+                logger.info(f"Legal actions for player {actor.id} in DEAL_DECIDE phase: Keep/Fold")
                 return [
                     Action("keep", {}),
                     Action("fold", {})
@@ -151,12 +155,14 @@ class Engine:
                 for i in range(3):
                     for j in range(i + 1, 3):
                         actions.append(Action("change_cards", {"indices": [i, j]}))
+                logger.info(f"Legal actions for player {actor.id} in CAMBI phase: {actions}")
                 return actions
         
         elif self.phase == Phase.BUCHI_ENTRY:
             if actor.kind == "player":
                 player = self.gs.players[actor.id]
                 if not player.is_playing:  # Only discarders can take buco
+                    logger.info(f"Legal actions for player {actor.id} in BUCHI_ENTRY phase: take_buco/pass")
                     return [
                         Action("take_buco", {}),
                         Action("pass", {})
@@ -167,6 +173,7 @@ class Engine:
                 buco = self.gs.buchi[actor.id]
                 if len(buco.cards) == 4:
                     # Discard one of the 4 cards
+                    logger.info(f"Legal actions for buco {actor.id} in BUCHI_DISCARD phase: discard one of 4 cards")
                     return [
                         Action("discard", {"card_index": i})
                         for i in range(4)
@@ -189,6 +196,7 @@ class Engine:
     
     def _legal_play_actions(self, player: Player) -> List[Action]:
         """Get legal play actions for a player, considering palo/briscola/ammazzare rules."""
+        logger.info(f"Getting legal play actions for player {player.name} with cards: {player.cards}")
         return self._legal_play_actions_for_cards(player.cards, player)
     
     def _legal_play_actions_for_cards(self, cards: List[Card], player: Player) -> List[Action]:
@@ -221,10 +229,10 @@ class Engine:
         suit_cards = [c for c in cards if c.seed == lead_suit]
         briscola_cards = [c for c in cards if c.seed == briscola_suit]
         
-        if suit_cards:
+        if self.gs.trick_winner and suit_cards:
             # Must follow suit
-            can_play = suit_cards
-        elif briscola_cards:
+            must_play = suit_cards
+        elif self.gs.trick_winner and briscola_cards:
             # Must play briscola
             can_play = briscola_cards
         else:
@@ -234,18 +242,28 @@ class Engine:
         # Now check "ammazzare sempre" - must beat current winner if possible
         if self.gs.trick_winner:
             winning_card = self.gs.trick_winner[1]
-            beating_cards = [
-                c for c in can_play
-                if compare_cards(lead_suit, briscola_suit, c, winning_card) > 0
-            ]
-            if beating_cards:
-                # Must play a card that beats
-                must_play = beating_cards
+            logger.info(f"Current winning card in trick: {winning_card}")
+            if must_play:
+                beating_cards = [
+                    c for c in must_play
+                    if compare_cards(lead_suit, briscola_suit, c, winning_card) > 0
+                ]
+                logger.info(f"Beating cards from must_play: {beating_cards}")
+                if beating_cards:
+                    # Must play a card that beats
+                    must_play = beating_cards
             else:
-                must_play = can_play
-        else:
-            must_play = can_play
-        
+                beating_cards = [
+                    c for c in can_play
+                    if compare_cards(lead_suit, briscola_suit, c, winning_card) > 0
+                ]
+                logger.info(f"Beating cards from can_play: {beating_cards}")
+                if beating_cards:
+                    # Must play a card that beats
+                    must_play = beating_cards
+                else:
+                    must_play = can_play
+        logger.info(f"Legal play actions for player {player.name}: must_play={must_play}")
         return [Action("play_card", {"card": card}) for card in must_play]
     
     def _get_mandatory_lead(self, player: Player, cards: List[Card]) -> Optional[Card]:
@@ -304,13 +322,17 @@ class Engine:
     
     def _step_deal_decide(self, action: Action):
         """Handle Keep/Fold decision."""
+        logger.info(f"Player {self._current_actor.id} action in DEAL_DECIDE: {action}")
+        time.sleep(2)
         if action.kind == "keep":
+            logger.info(f"Player {self._current_actor.id} chose to KEEP their cards.")
             player_idx = self._current_actor.id
             player = self.gs.players[player_idx]
             player.is_playing = True
             self.gs.playing_players.append(player)
             self.gs.decisions[player_idx] = True
         elif action.kind == "fold":
+            logger.info(f"Player {self._current_actor.id} chose to FOLD their cards.")
             player_idx = self._current_actor.id
             self.gs.decisions[player_idx] = False
     
@@ -318,25 +340,29 @@ class Engine:
         """Handle card exchange."""
         player_idx = self._current_actor.id
         player = self.gs.players[player_idx]
-        
+        logger.info(f"Player {player_idx} action in CAMBI: {action}")
         if action.kind == "servito":
             # No change
+            logger.info(f"Player {player_idx} chose to SERVITO (no card change).")
             pass
         elif action.kind == "change_card":
             idx = action.payload["index"]
             old_card = player.cards[idx]
             player.remove_card(old_card)
             new_card = self.gs.deck.draw()
+            logger.info(f"Player {player_idx} changed card at index {idx} from {old_card} to {new_card}.")
             player.cards.insert(idx, new_card)
         elif action.kind == "change_cards":
             indices = sorted(action.payload["indices"], reverse=True)  # Remove from high to low
             for idx in indices:
                 old_card = player.cards[idx]
                 player.remove_card(old_card)
+                logger.info(f"Player {player_idx} changed card at index {idx} from {old_card}.")
             # Add new cards in order
             for idx in sorted(action.payload["indices"]):
                 new_card = self.gs.deck.draw()
                 player.cards.insert(idx, new_card)
+                logger.info(f"Player {player_idx} received new card {new_card} at index {idx}.")
         
         self.gs.cambi_done.append(player_idx)
     
@@ -344,7 +370,8 @@ class Engine:
         """Handle Buco entry decision."""
         player_idx = self._current_actor.id
         player = self.gs.players[player_idx]
-        
+        logger.info(f"Player {player_idx} action in BUCHI_ENTRY: {action}")
+        time.sleep(2)
         if action.kind == "take_buco":
             if player.is_playing:
                 raise ValueError(f"Player {player.name} already kept cards, cannot take buco")
@@ -358,6 +385,7 @@ class Engine:
             for _ in range(4):
                 buco.add_card(self.gs.deck.draw())
             buco.discard_pending = True
+            logger.info(f"Player {player_idx} took a Buco with cards: {buco.cards}")
         elif action.kind == "pass":
             pass
         
@@ -369,10 +397,13 @@ class Engine:
             buco = self.gs.buchi[self._current_actor.id]
             card_idx = action.payload["card_index"]
             discarded = buco.cards.pop(card_idx)
+            logger.info(f"Buco {self._current_actor.id} discarded card {discarded}. Remaining cards: {buco.cards}")
             buco.discard_pending = False
     
     def _step_play(self, action: Action):
         """Handle playing a card in a trick."""
+        logger.info(f"Actor {self._current_actor} action in PLAY: {action}")
+        time.sleep(2)
         if action.kind == "play_card":
             card = action.payload["card"]
             
@@ -388,7 +419,8 @@ class Engine:
                     raise ValueError(f"Buco {self._current_actor.id} does not have card {card}")
                 buco.cards.remove(card)
                 self.gs.current_trick.append((self._current_actor, card))
-            
+            logger.info(f"Actor {self._current_actor} played card {card}. Current trick: {self.gs.current_trick}")
+
             # Set lead suit if first card
             if len(self.gs.current_trick) == 1:
                 self.gs.trick_lead_suit = card.seed
@@ -399,6 +431,7 @@ class Engine:
     def _update_trick_winner(self):
         """Update who is winning the current trick."""
         if not self.gs.current_trick:
+            logger.info("No cards in current trick, no winner.")
             self.gs.trick_winner = None
             return
         
@@ -410,6 +443,7 @@ class Engine:
             if compare_cards(lead_suit, briscola_suit, card, winner[1]) > 0:
                 winner = (actor, card)
         
+        logger.info(f"Current trick winner: {winner}")
         self.gs.trick_winner = winner
     
     def _run_to_next_decision(self):
@@ -418,6 +452,7 @@ class Engine:
             if self.phase == Phase.DEAL_DECIDE:
                 # Deal to next player who hasn't been dealt
                 next_player = self._next_player_to_deal()
+                logger.info(f"Next player to deal to: {next_player}")
                 if next_player is not None:
                     # Deal 3 cards
                     player = self.gs.players[next_player]
@@ -427,6 +462,7 @@ class Engine:
                     return
                 else:
                     # All players dealt and decided, move to CAMBI
+                    logger.info("All players dealt and decided. Moving to CAMBI phase.")
                     self.phase = Phase.CAMBI
                     continue
             
@@ -438,6 +474,7 @@ class Engine:
                     return
                 else:
                     # All cambi done, move to BUCHI_ENTRY
+                    logger.info("All CAMBI done. Moving to BUCHI_ENTRY phase.")
                     self.phase = Phase.BUCHI_ENTRY
                     continue
             
@@ -445,6 +482,8 @@ class Engine:
                 # Find next discarder who hasn't decided
                 next_player = self._next_player_for_buchi_entry()
                 if next_player is not None:
+                    logger.info(f"Next player for BUCHI_ENTRY: {next_player}")
+                    logger.info(f"Prompting player {next_player} for BUCHI_ENTRY decision.")
                     self._current_actor = Actor("player", next_player)
                     return
                 else:
@@ -452,11 +491,13 @@ class Engine:
                     pending_buco = self._next_buco_for_discard()
                     if pending_buco is not None:
                         self.phase = Phase.BUCHI_DISCARD
+                        logger.info(f"Moving to BUCHI_DISCARD phase for buco {pending_buco}.")
                         self._current_actor = Actor("buco", pending_buco)
                         return
                     else:
                         # All buchi resolved, move to PLAY
                         self.phase = Phase.PLAY
+                        logger.info("All BUCHI_ENTRY done. Moving to PLAY phase.")
                         self._start_play_phase()
                         continue
             
@@ -475,7 +516,7 @@ class Engine:
             elif self.phase == Phase.PLAY:
                 # Check if trick is complete
                 if len(self.gs.current_trick) == self._num_active_participants():
-                    # Resolve trick
+                    logger.info("Trick complete. Resolving trick.")
                     self._resolve_trick()
                     # Check if all tricks done
                     if len(self.gs.tricks) == 3:
@@ -483,11 +524,13 @@ class Engine:
                         continue
                     else:
                         # Start next trick
+                        logger.info("Starting next trick.")
                         self._start_next_trick()
                         continue
                 else:
                     # Need next player to play
                     next_actor = self._next_actor_to_play()
+                    logger.info(f"Next actor to play: {next_actor}")
                     if next_actor is not None:
                         self._current_actor = next_actor
                         return
@@ -497,12 +540,14 @@ class Engine:
             
             elif self.phase == Phase.SETTLE:
                 # Automatic settlement
+                logger.info("Settling the hand.")
                 self._settle()
                 self.phase = Phase.FINE
                 self._current_actor = None
                 return
             
             elif self.phase == Phase.FINE:
+                logger.info("Hand complete. No further actions.")
                 self._current_actor = None
                 return
     
@@ -630,9 +675,11 @@ class Engine:
         if winner_actor.kind == "player":
             player = self.gs.players[winner_actor.id]
             player.tricks_won += 1
+            logger.info(f"Player {player.name} won the trick with card {winner_card}. Total tricks won: {player.tricks_won}")
         elif winner_actor.kind == "buco":
             buco = self.gs.buchi[winner_actor.id]
             buco.tricks_won += 1
+            logger.info(f"Buco {winner_actor.id} composed of {buco.players} won the trick with card {winner_card}. Total tricks won: {buco.tricks_won}")
     
     def _get_trick_winner(self, trick: List[tuple]) -> tuple:
         """Determine winner of a completed trick."""
@@ -647,6 +694,7 @@ class Engine:
             if compare_cards(lead_suit, briscola_suit, card, winner[1]) > 0:
                 winner = (actor, card)
         
+        logger.info(f"Trick winner: {winner}")
         return winner
     
     def _settle(self):
@@ -667,6 +715,7 @@ class Engine:
             if all_one_trick:
                 # Piatto salvo - pot rolls over
                 # Still add dealer fee and rotate dealer
+                logger.info("Piatto salvo! All participants won 1 trick each. Pot rolls over.")
                 self.gs.pot += 30  # €0.30 = 30 cents
                 self.gs.dealer = (self.gs.dealer + 1) % self.gs.n_players
                 return
@@ -677,11 +726,13 @@ class Engine:
             if isinstance(entity, Player):
                 payout = tricks * trick_value
                 entity.bankroll += payout
+                logger.info(f"Player {entity.name} won {tricks} tricks, receiving payout of {payout}. New bankroll: {entity.bankroll}")
             elif isinstance(entity, Buco):
                 # Split among buco players
                 payout_per_player = (tricks * trick_value) // len(entity.players)
                 for player in entity.players:
                     player.bankroll += payout_per_player
+                    logger.info(f"Buco player {player.name} won {tricks} tricks, receiving payout of {payout_per_player}. New bankroll: {player.bankroll}")
         
         # Bestia payments: 0 tricks = pay pot amount into next pot
         bestia_payments = 0
